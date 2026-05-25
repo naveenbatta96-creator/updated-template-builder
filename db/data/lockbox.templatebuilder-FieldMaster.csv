@@ -1,0 +1,11 @@
+ID,levelName,fieldName,sapType,fieldLength,propertyType,isRequired
+1,HEADER,Lockbox ID,CHAR,10,Standard,true
+2,HEADER,Company Code,CHAR,4,Standard,true
+3,HEADER,Batch Destination,CHAR,15,Standard,false
+4,HEADER,Batch Origin,CHAR,15,Standard,false
+5,HEADER,Deposit Date,DATS,8,Date,true
+6,PAYMENT,Payment Amount,CURR,15,Amount,true
+7,PAYMENT,Cheque Number,CHAR,15,Standard,false
+8,PAYMENT,Bank Name,CHAR,15,Standard,false
+9,CLEARING,Invoice Amount,CURR,15,Amount,true
+10,CLEARING,Difference Reason,CHAR,3,Standard,false

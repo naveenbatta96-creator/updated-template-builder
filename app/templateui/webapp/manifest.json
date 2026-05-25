@@ -1,0 +1,136 @@
+{
+  "_version": "1.48.0",
+  "sap.app": {
+    "id": "com.template.builder.nats.templateui",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/template/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.148.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.template.builder.nats.templateui.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "TemplateMasterList",
+          "target": "TemplateMasterList"
+        },
+        {
+          "pattern": "TemplateMaster({key}):?query:",
+          "name": "TemplateMasterObjectPage",
+          "target": "TemplateMasterObjectPage"
+        }
+      ],
+      "targets": {
+        "TemplateMasterList": {
+          "type": "Component",
+          "id": "TemplateMasterList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/TemplateMaster",
+              "variantManagement": "Page",
+              "navigation": {
+                "TemplateMaster": {
+                  "detail": {
+                    "route": "TemplateMasterObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              },
+              "content": {
+                "header": {
+                  "actions": {
+                    "CreateTemplate": {
+                      "text": "Create Template",
+                      "press": "com.template.builder.nats.templateui.ext.controller.CreateTemplate.createTemplate",
+                      "visible": true,
+                      "enabled": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TemplateMasterObjectPage": {
+          "type": "Component",
+          "id": "TemplateMasterObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/TemplateMaster"
+            }
+          }
+        }
+      }
+    }
+  }
+}

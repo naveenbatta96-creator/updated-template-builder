@@ -1,0 +1,107 @@
+<!-- <core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    >
+
+    <Dialog
+        title="Create Template"
+        contentHeight="600px"
+        contentWidth="800px"
+        resizable="true"
+        draggable="true">
+
+        <content>
+            <VBox class="sapUiMediumMargin">
+                <Text
+                    text="Create Template Dialog"
+                    class="sapUiMediumMargin" />
+                
+                <List
+                    items="{
+                        path: '/',
+                        templateShareable: false
+                    }">
+                    <StandardListItem
+                        title="{title}"
+                        description="{description}" />
+                </List>
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button
+                text="Close"
+                press=".onCloseDialog" />
+        </beginButton>
+
+        <endButton>
+            <Button
+                text="Save"
+                type="Emphasized"
+                press=".onSaveDialog" />
+        </endButton>
+
+    </Dialog>
+</core:FragmentDefinition> -->
+
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog id="exportMappingDialog" title="Configure Excel Download Template" contentWidth="650px" contentHeight="500px">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                
+                <!-- Tab bar to filter selection items by business hierarchy levels -->
+                <IconTabBar id="levelFieldsTabBar" expandable="false" class="sapUiResponsiveContentPadding">
+                    <items>
+                        <IconTabFilter text="Header Level" key="Header" icon="sap-icon://header">
+                            <List id="headerFieldsList" mode="MultiSelect" includeItemInSelection="true">
+                                <StandardListItem title="Company Code" description="companyCode" />
+                                <StandardListItem title="Batch Number" description="batchNo" />
+                                <StandardListItem title="Transmission Date" description="transmissionDate" />
+                            </List>
+                        </IconTabFilter>
+                        
+                        <IconTabFilter text="Item Level" key="Item" icon="sap-icon://product">
+                            <List id="itemFieldsList" mode="MultiSelect" includeItemInSelection="true">
+                                <StandardListItem title="Customer Number" description="customerNo" />
+                                <StandardListItem title="Invoice Reference" description="invoiceRef" />
+                                <StandardListItem title="Check Amount" description="checkAmount" />
+                            </List>
+                        </IconTabFilter>
+                        
+                        <IconTabFilter text="Payment Level" key="Payment" icon="sap-icon://money-bills">
+                            <List id="paymentFieldsList" mode="MultiSelect" includeItemInSelection="true">
+                                <StandardListItem title="Bank Routing Number" description="routingNo" />
+                                <StandardListItem title="Account Number" description="accountNo" />
+                                <StandardListItem title="Clearing Status" description="status" />
+                            </List>
+                        </IconTabFilter>
+                    </items>
+                </IconTabBar>
+
+                <Divider class="sapUiMediumMarginTop" />
+                
+                <!-- Download Configuration Options -->
+                <HBox alignItems="Center" justifycontent="SpaceBetween" class="sapUiTinyMarginTop">
+                    <Label text="Export Workbook Structure:" weight="Bold" />
+                    <SegmentedButton id="downloadModeBtn" selectedKey="SINGLE">
+                        <items>
+                            <SegmentedButtonItem text="Single Flat Sheet" key="SINGLE" icon="sap-icon://excel-attachment" />
+                            <SegmentedButtonItem text="Multiple Split Sheets (By Level)" key="MULTIPLE" icon="sap-icon://documents" />
+                        </items>
+                    </SegmentedButton>
+                </HBox>
+
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button text="Cancel" press=".onCloseDialog" />
+        </beginButton>
+        <endButton>
+            <Button text="Generate &amp; Download Excel" type="Emphasized" icon="sap-icon://download" press=".onExecuteExport" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
