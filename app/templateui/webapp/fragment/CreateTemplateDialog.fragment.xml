@@ -1,0 +1,245 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="createTemplateDialog"
+        title="Create Template"
+        contentWidth="500px"
+        draggable="true"
+        resizable="true">
+
+        <content>
+
+           <VBox class="sapUiMediumMargin">
+
+    <!-- Template Name -->
+
+    <Label text="Template Name"/>
+
+    <Input
+        id="templateNameInput"
+        placeholder="Enter template name"/>
+
+    <!-- Template Type -->
+
+    <Label
+        text="Template Type"
+        class="sapUiSmallMarginTop"/>
+
+    <Select
+        id="templateTypeSelect"
+        selectedKey="LOCKBOX">
+
+        <items>
+
+            <core:Item
+                key="LOCKBOX"
+                text="Lockbox"/>
+
+            <core:Item
+                key="PAYMENT"
+                text="Payment Upload"/>
+
+            <core:Item
+                key="CLEARING"
+                text="Clearing Upload"/>
+
+        </items>
+
+    </Select>
+
+    <!-- Sheet Mode -->
+
+    <Label
+        text="Sheet Mode"
+        class="sapUiSmallMarginTop"/>
+
+    <SegmentedButton
+        id="sheetModeSegment"
+        selectedKey="SINGLE">
+
+        <items>
+
+            <SegmentedButtonItem
+                key="SINGLE"
+                text="Single Sheet"/>
+
+            <SegmentedButtonItem
+                key="MULTIPLE"
+                text="Multiple Sheets"/>
+
+        </items>
+
+    </SegmentedButton>
+
+    <!-- HEADER FIELDS -->
+
+    <Panel
+        headerText="Header Fields"
+        expandable="true"
+        expanded="true"
+        class="sapUiMediumMarginTop">
+
+        <content>
+
+            <List
+                items="{
+                    path: '/FieldMaster',
+                    filters: [
+                        {
+                            path: 'levelName',
+                            operator: 'EQ',
+                            value1: 'HEADER'
+                        }
+                    ]
+                }">
+
+                <CustomListItem>
+
+                    <HBox
+                        width="100%"
+                        justifyContent="SpaceBetween"
+                        alignItems="Center">
+
+                        <CheckBox/>
+
+                        <VBox>
+
+                            <Text text="{fieldName}"/>
+
+                            <Text text="{sapType}"/>
+
+                        </VBox>
+
+                    </HBox>
+
+                </CustomListItem>
+
+            </List>
+
+        </content>
+
+    </Panel>
+
+    <!-- PAYMENT FIELDS -->
+
+    <Panel
+        headerText="Payment Fields"
+        expandable="true"
+        expanded="false"
+        class="sapUiMediumMarginTop">
+
+        <content>
+
+            <List
+                items="{
+                    path: '/FieldMaster'}">
+                    <!-- filters: [
+                        {
+                            path: 'levelName',
+                            operator: 'EQ',
+                            value1: 'PAYMENT'
+                        }
+                    ]
+                }"> -->
+
+                <CustomListItem>
+
+                    <HBox
+                        width="100%"
+                        justifyContent="SpaceBetween"
+                        alignItems="Center">
+
+                        <CheckBox/>
+
+                        <VBox>
+
+                            <Text text="{fieldName}"/>
+
+                            <Text text="{sapType}"/>
+
+                        </VBox>
+
+                    </HBox>
+
+                </CustomListItem>
+
+            </List>
+
+        </content>
+
+    </Panel>
+
+    <!-- CLEARING FIELDS -->
+
+    <Panel
+        headerText="Clearing Fields"
+        expandable="true"
+        expanded="false"
+        class="sapUiMediumMarginTop">
+
+        <content>
+
+            <List
+                items="{
+                    path: '/FieldMaster',
+                    filters: [
+                        {
+                            path: 'levelName',
+                            operator: 'EQ',
+                            value1: 'CLEARING'
+                        }
+                    ]
+                }">
+
+                <CustomListItem>
+
+                    <HBox
+                        width="100%"
+                        justifyContent="SpaceBetween"
+                        alignItems="Center">
+
+                        <CheckBox/>
+
+                        <VBox>
+
+                            <Text text="{fieldName}"/>
+
+                            <Text text="{sapType}"/>
+
+                        </VBox>
+
+                    </HBox>
+
+                </CustomListItem>
+
+            </List>
+
+        </content>
+
+    </Panel>
+
+</VBox>
+        </content>
+
+        <beginButton>
+
+            <Button
+                text="Save"
+                type="Emphasized"
+                press=".onSaveTemplate"/>
+
+        </beginButton>
+
+        <endButton>
+
+            <Button
+                text="Cancel"
+                press=".onCloseDialog"/>
+
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

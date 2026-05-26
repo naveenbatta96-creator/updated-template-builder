@@ -1,0 +1,76 @@
+<mvc:View
+    controllerName="com.template.builder.controller.Home"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+
+    <Page
+        title="Template Builder">
+
+        <content>
+
+            <VBox class="sapUiMediumMargin">
+
+                <Button
+                    text="Create Template"
+                    type="Emphasized"
+                    press=".onCreateTemplate"/>
+
+                <Table
+    id="templateTable"
+    class="sapUiMediumMarginTop"
+    items="{
+        path: 'templateModel>/templates'
+    }">
+
+    <columns>
+
+        <Column>
+            <Text text="Template Name"/>
+        </Column>
+
+        <Column>
+            <Text text="Template Type"/>
+        </Column>
+
+        <Column>
+            <Text text="Sheet Mode"/>
+        </Column>
+
+        <Column>
+            <Text text="Actions"/>
+        </Column>
+
+    </columns>
+
+    <items>
+
+        <ColumnListItem>
+
+            <cells>
+
+                <Text text="{templateModel>name}"/>
+
+                <Text text="{templateModel>type}"/>
+
+                <Text text="{templateModel>sheetMode}"/>
+
+                <Button
+                    text="Delete"
+                    type="Reject"
+                    press=".onDeleteTemplate"/>
+
+            </cells>
+
+        </ColumnListItem>
+
+    </items>
+
+</Table>
+
+            </VBox>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

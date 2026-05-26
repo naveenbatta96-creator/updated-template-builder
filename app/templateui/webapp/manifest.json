@@ -1,136 +1,84 @@
 {
-  "_version": "1.48.0",
   "sap.app": {
-    "id": "com.template.builder.nats.templateui",
+    "id": "com.template.builder",
     "type": "application",
-    "i18n": "i18n/i18n.properties",
-    "applicationVersion": {
-      "version": "0.0.1"
-    },
-    "title": "{{appTitle}}",
-    "description": "{{appDescription}}",
-    "resources": "resources.json",
+    "title": "Template Builder",
     "dataSources": {
       "mainService": {
         "uri": "/odata/v4/template/",
         "type": "OData",
         "settings": {
-          "annotations": [],
           "odataVersion": "4.0"
         }
       }
     }
   },
-  "sap.ui": {
-    "technology": "UI5",
-    "deviceTypes": {
-      "desktop": true,
-      "tablet": true,
-      "phone": true
-    }
-  },
+
   "sap.ui5": {
-    "flexEnabled": true,
+
+    "rootView": {
+      "viewName": "com.template.builder.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "app"
+    },
+
     "dependencies": {
-      "minUI5Version": "1.148.0",
+      "minUI5Version": "1.120.0",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {},
-        "sap.fe.templates": {}
+        "sap.f": {},
+        "sap.ui.layout": {}
       }
     },
-    "contentDensities": {
-      "compact": true,
-      "cozy": true
+
+    "resourceRoots": {
+      "com.template.builder": "./"
     },
+
     "models": {
-      "i18n": {
-        "type": "sap.ui.model.resource.ResourceModel",
-        "settings": {
-          "bundleName": "com.template.builder.nats.templateui.i18n.i18n"
-        }
-      },
       "": {
-        "dataSource": "mainService",
-        "preload": true,
+        "type": "sap.ui.model.odata.v4.ODataModel",
         "settings": {
+          "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true,
-          "earlyRequests": true
-        }
-      },
-      "@i18n": {
-        "type": "sap.ui.model.resource.ResourceModel",
-        "uri": "i18n/i18n.properties"
+          "autoExpandSelect": true
+        },
+        "dataSource": "mainService"
       }
     },
-    "resources": {
-      "css": []
-    },
+
     "routing": {
-      "config": {},
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "viewPath": "com.template.builder.view",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "async": true
+      },
+
       "routes": [
         {
-          "pattern": ":?query:",
-          "name": "TemplateMasterList",
-          "target": "TemplateMasterList"
-        },
-        {
-          "pattern": "TemplateMaster({key}):?query:",
-          "name": "TemplateMasterObjectPage",
-          "target": "TemplateMasterObjectPage"
+          "name": "RouteHome",
+          "pattern": "",
+          "target": "TargetHome"
         }
       ],
+
       "targets": {
-        "TemplateMasterList": {
-          "type": "Component",
-          "id": "TemplateMasterList",
-          "name": "sap.fe.templates.ListReport",
-          "options": {
-            "settings": {
-              "contextPath": "/TemplateMaster",
-              "variantManagement": "Page",
-              "navigation": {
-                "TemplateMaster": {
-                  "detail": {
-                    "route": "TemplateMasterObjectPage"
-                  }
-                }
-              },
-              "controlConfiguration": {
-                "@com.sap.vocabularies.UI.v1.LineItem": {
-                  "tableSettings": {
-                    "type": "ResponsiveTable"
-                  }
-                }
-              },
-              "content": {
-                "header": {
-                  "actions": {
-                    "CreateTemplate": {
-                      "text": "Create Template",
-                      "press": "com.template.builder.nats.templateui.ext.controller.CreateTemplate.createTemplate",
-                      "visible": true,
-                      "enabled": true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "TemplateMasterObjectPage": {
-          "type": "Component",
-          "id": "TemplateMasterObjectPage",
-          "name": "sap.fe.templates.ObjectPage",
-          "options": {
-            "settings": {
-              "editableHeaderContent": false,
-              "contextPath": "/TemplateMaster"
-            }
-          }
+        "TargetHome": {
+          "viewName": "Home"
         }
       }
     }
+  },
+
+  "sap.ui": {
+    "technology": "UI5"
+  },
+
+  "sap.cloud": {
+    "public": true
   }
 }
