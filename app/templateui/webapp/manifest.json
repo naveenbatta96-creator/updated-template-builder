@@ -45,7 +45,13 @@
           "autoExpandSelect": true
         },
         "dataSource": "mainService"
-      }
+      },
+      "templateModel": {
+            "type": "sap.ui.model.json.JSONModel",
+            "settings": {
+                "templates": []
+        }
+    }
     },
 
     "routing": {

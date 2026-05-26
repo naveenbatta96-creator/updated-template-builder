@@ -11,14 +11,15 @@ sap.ui.define([
         },
 
         init: function () {
+            // Call the base component's init function
             UIComponent.prototype.init.apply(this, arguments);
 
-            // Create the model
+            // 1. Instantiating the model correctly on the Component level
             const oModel = new JSONModel({
                 templates: []
             });
-
-            // Set model on component (view will inherit it)
+            
+            // 2. Since "this" IS the component here, attach the model directly to it
             this.setModel(oModel, "templateModel");
 
             // Initialize router after component setup

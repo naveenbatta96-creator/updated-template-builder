@@ -2,152 +2,178 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
     "sap/m/MessageToast",
-        "sap/ui/model/json/JSONModel"
-
-], function (Controller, Fragment, MessageToast, JSONModel) {
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
+], function (Controller, Fragment, MessageToast, JSONModel, Filter, FilterOperator) {
     "use strict";
 
     return Controller.extend("com.lockbox.templatebuilder.controller.Home", {
 
         onCreateTemplate: async function () {
-
             console.log("Create Template Clicked");
-
             try {
-
                 if (!this.oCreateDialog) {
-
                     this.oCreateDialog = await Fragment.load({
                         id: this.getView().getId(),
                         name: "com.template.builder.fragment.CreateTemplateDialog",
                         controller: this
                     });
-
                     this.getView().addDependent(this.oCreateDialog);
                 }
-
                 this._resetDialogFields();
-
                 this.oCreateDialog.open();
-
             } catch (error) {
-
                 console.error("Fragment Load Error:", error);
-
                 MessageToast.show("Error loading dialog");
             }
         },
 
         _resetDialogFields: function () {
-
-            Fragment.byId(
-                this.getView().getId(),
-                "templateNameInput"
-            ).setValue("");
-
-            Fragment.byId(
-                this.getView().getId(),
-                "templateTypeSelect"
-            ).setSelectedKey("LOCKBOX");
-
-            Fragment.byId(
-                this.getView().getId(),
-                "sheetModeSegment"
-            ).setSelectedKey("SINGLE");
+            Fragment.byId(this.getView().getId(), "templateNameInput").setValue("");
+            Fragment.byId(this.getView().getId(), "templateTypeSelect").setSelectedKey("LOCKBOX");
+            Fragment.byId(this.getView().getId(), "sheetModeSelect").setSelectedKey("SINGLE");
         },
 
         onCloseDialog: function () {
-
             if (this.oCreateDialog) {
                 this.oCreateDialog.close();
             }
         },
 
         onSaveTemplate: function () {
+            try {
+                const sTemplateName = Fragment.byId(this.getView().getId(), "templateNameInput").getValue();
+                const sTemplateType = Fragment.byId(this.getView().getId(), "templateTypeSelect").getSelectedKey();
+                const sSheetMode = Fragment.byId(this.getView().getId(), "sheetModeSelect").getSelectedKey();
 
-    try {
+                // 1. GET SELECTED FIELDS WITH SQLite IDs
+                const aSelectedFields = this._getSelectedFields();
+                console.log("Selected Fields for DB:", aSelectedFields);
 
-        const sTemplateName = Fragment.byId(
-            this.getView().getId(),
-            "templateNameInput"
-        ).getValue();
+                // VALIDATION
+                if (!sTemplateName || !sTemplateName.trim()) {
+                    MessageToast.show("Please enter template name");
+                    return;
+                }
 
-        const sTemplateType = Fragment.byId(
-            this.getView().getId(),
-            "templateTypeSelect"
-        ).getSelectedKey();
+                if (aSelectedFields.length === 0) {
+                    MessageToast.show("Please select at least one field");
+                    return;
+                }
 
-        const sSheetMode = Fragment.byId(
-            this.getView().getId(),
-            "sheetModeSegment"
-        ).getSelectedKey();
+                // 2. CONSTRUCT THE DEEP INSERT PAYLOAD FOR CAPM
+                const aMappingsPayload = aSelectedFields.map(function (oField, index) {
+                    return {
+                        field_ID: oField.ID,       // CAPM automatically maps associations to Entity_ID
+                        sequenceNo: index + 1      // Sequential ordering
+                    };
+                });
 
-        // Validation
-        if (!sTemplateName || !sTemplateName.trim()) {
+                const oTemplatePayload = {
+                    templateName: sTemplateName,
+                    templateType: sTemplateType,
+                    sheetMode: sSheetMode,
+                    status: "ACTIVE",
+                    mappings: aMappingsPayload     // Composition navigation property name from schema.cds
+                };
 
-            MessageToast.show("Please enter template name");
+                console.log("OData V4 Deep Insert Payload:", oTemplatePayload);
 
-            return;
-        }
+                // 3. TARGET DEFAULT ODATA V4 MODEL
+                const oODataModel = this.getView().getModel(); 
+                
+                // 4. BIND LIST TO THE ENTITY SET
+                const oListBinding = oODataModel.bindList("/TemplateMaster");
 
-        // Create object
-        const oTemplateData = {
-            name: sTemplateName,
-            type: sTemplateType,
-            sheetMode: sSheetMode,
-            createdAt: new Date()
-        };
+                sap.ui.core.BusyIndicator.show(0);
 
-        console.log("Template Data:", oTemplateData);
+                // 5. EXECUTE THE V4 CREATE OPERATION
+                const oNewContext = oListBinding.create(oTemplatePayload);
 
-        // Get model
-        const oModel = this.getView().getModel("templateModel");
+                // 6. ODATA V4 PROMISE HANDLING FOR DATABASE PERSISTENCE
+                oNewContext.created().then(function () {
+                    sap.ui.core.BusyIndicator.hide();
+                    MessageToast.show("Template saved persistently to SQLite via CAPM!");
+                    this.onCloseDialog();
+                }.bind(this)).catch(function (oError) {
+                    sap.ui.core.BusyIndicator.hide();
+                    console.error("CAPM Server Save Error:", oError);
+                    MessageToast.show("Error writing records to persistent storage.");
+                });
 
-        // Get existing array
-        const aTemplates = oModel.getProperty("/templates");
+            } catch (error) {
+                sap.ui.core.BusyIndicator.hide();
+                console.error("Save Error Execution:", error);
+                MessageToast.show("Error saving template");
+            }
+        },
 
-        // Add new object
-        aTemplates.push(oTemplateData);
+        _getSelectedFields: function () {
+            var oTable = this.byId("fieldsTable") || Fragment.byId(this.getView().getId(), "fieldsTable");
+            var aFields = [];
 
-        // Update model
-        oModel.setProperty("/templates", aTemplates);
+            if (!oTable) {
+                console.error("Table 'fieldsTable' not found in View or Fragment context.");
+                return aFields;
+            }
 
-        // Debug
-        console.log("Updated Model:", oModel.getData());
+            var aSelectedItems = oTable.getSelectedItems();
 
-        // Success message
-        MessageToast.show("Template saved successfully");
+            aSelectedItems.forEach(function (oItem) {
+                var oContext = oItem.getBindingContext(); 
+                
+                if (oContext) {
+                    var oData = oContext.getObject();
+                    aFields.push({
+                        ID: oData.ID, // Extracting the SQLite UUID primary key
+                        fieldName: oData.fieldName,
+                        levelName: oData.levelName,
+                        sapType: oData.sapType
+                    });
+                }
+            });
 
-        // Close dialog
-        this.onCloseDialog();
+            return aFields;
+        },
 
-    } catch (error) {
-
-        console.error("Save Error:", error);
-
-        MessageToast.show("Error saving template");
-    }
-},
         onDeleteTemplate: function (oEvent) {
+            const oItem = oEvent.getSource().getParent();
+            const oContext = oItem.getBindingContext(); // Grab the V4 Context directly
+            
+            if (!oContext) return;
 
-    const oItem = oEvent.getSource().getParent();
+            sap.ui.core.BusyIndicator.show(0);
 
-    const oContext = oItem.getBindingContext("templateModel");
+            // 💡 V4 Standard: Call .delete() straight on the binding context returning a Promise
+            oContext.delete().then(function () {
+                sap.ui.core.BusyIndicator.hide();
+                MessageToast.show("Template deleted from SQLite database.");
+            }).catch(function (oError) {
+                sap.ui.core.BusyIndicator.hide();
+                console.error("Delete Fail:", oError);
+                MessageToast.show("Could not remove template.");
+            });
+        },
 
-    const sPath = oContext.getPath();
+        onLevelFilterChange: function (oEvent) {
+            var sKey = oEvent.getSource().getSelectedKey();
+            var oTable = this.byId("fieldsTable") || Fragment.byId(this.getView().getId(), "fieldsTable");
+            
+            if (!oTable) return;
 
-    const iIndex = parseInt(sPath.split("/")[2]);
+            var oBinding = oTable.getBinding("items");
+            if (!oBinding) return;
 
-    const oModel = this.getView().getModel("templateModel");
+            var aFilters = [];
+            if (sKey !== "ALL") {
+                aFilters.push(
+                    new Filter("levelName", FilterOperator.EQ, sKey)
+                );
+            }
 
-    const aTemplates = oModel.getProperty("/templates");
-
-    aTemplates.splice(iIndex, 1);
-
-    oModel.setProperty("/templates", aTemplates);
-
-    MessageToast.show("Template deleted");
-}
+            oBinding.filter(aFilters);
+        }
 
     });
 });
