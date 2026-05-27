@@ -10,6 +10,57 @@ sap.ui.define([
 
     return Controller.extend("com.lockbox.templatebuilder.controller.Home", {
 
+        //===================================================================================================
+        // Controller Lifecycle Methods
+        //===================================================================================================
+
+        onInit: function(){
+        },
+
+        //=====================================================================================================
+        //Formatter Functions
+        //=====================================================================================================
+        // FORMAT ROW NUMBER (1, 2, 3, ...)
+ 
+        // ✅ FORMAT FIELDS COUNT FROM MAPPINGS
+        formatFieldsCount: function (oContext) {
+            // 1. Safety check
+            if (!oContext || typeof oContext.getProperty !== "function") {
+                return "0";
+            }
+        
+            // 2. Safely ask the OData V4 model for the mappings array for this specific row
+            var aMappings = oContext.getProperty("mappings");
+        
+            if (!aMappings) {
+                return "0";
+            }
+            
+            // 3. If it's an array, return length
+            if (Array.isArray(aMappings)) {
+                return aMappings.length.toString();
+            }
+            
+            // 4. Fallback for object length
+            if (aMappings.length !== undefined) {
+                return aMappings.length.toString();
+            }
+            
+            return "0";
+        },
+
+        //=====================================================================================================
+        // Event Handlers
+        //=====================================================================================================
+        
+        
+        onTableSelectionChange: function(oEvent){
+            var oTable = oEvent.getSource();
+            var iSelectedcount = oTable.getSelectedItems().length;
+            this.getModel("counterModel").setProperty("/selectedCount",iSelectedcount);
+
+
+        },
         onCreateTemplate: async function () {
             console.log("Create Template Clicked");
             try {
@@ -119,6 +170,10 @@ sap.ui.define([
             }
 
             var aSelectedItems = oTable.getSelectedItems();
+            
+            this.getModel("counterModel").setProperty("/selectedCount",aSelectedItems.length);
+           
+
 
             aSelectedItems.forEach(function (oItem) {
                 var oContext = oItem.getBindingContext(); 
@@ -132,6 +187,7 @@ sap.ui.define([
                         sapType: oData.sapType
                     });
                 }
+
             });
 
             return aFields;
@@ -173,6 +229,34 @@ sap.ui.define([
             }
 
             oBinding.filter(aFilters);
+        },
+
+        // ==========================================
+        // NEW ROW PRESS FUNCTION ADDED BELOW
+        // ==========================================
+        
+        onRowPress: function (oEvent) {
+            // 1. Get the list item that fired the press event
+            var oItem = oEvent.getSource();
+            
+            // 2. Get the OData V4 binding context for that row
+            var oContext = oItem.getBindingContext(); 
+            
+            if (!oContext) {
+                return;
+            }
+
+            // 3. Extract the primary key (assuming "ID" based on your _getSelectedFields logic)
+            var sTemplateId = oContext.getProperty("ID"); 
+
+            // 4. Trigger Navigation
+            var oRouter = this.getOwnerComponent().getRouter();
+            
+            // NOTE: Replace "YourDetailRouteName" with your actual route from manifest.json
+            // NOTE: Replace "templateId" with the actual parameter name defined in your route pattern
+            oRouter.navTo("RouteObjectPage", {
+                templateId: sTemplateId
+            });
         }
 
     });

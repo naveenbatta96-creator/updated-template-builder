@@ -1,12 +1,12 @@
-<mvc:View
-    controllerName="com.template.builder.controller.Home"
+<mvc:View controllerName="lockbox.templatebuilder.templateui4map.controller.View1"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m"
->
-    <Page title="Template Builder">
+    xmlns="sap.m">
+    <!-- <Page id="page" title="{i18n>title}"> -->
+     <Page title="Template Builder">
         <content>
             <VBox class="sapUiMediumMargin">
                 <Button
+                    id="createTemplateButton"
                     text="Create Template"
                     type="Emphasized"
                     press=".onCreateTemplate"
@@ -16,11 +16,11 @@
                     id="templateTable"
                     class="sapUiMediumMarginTop"
                     items="{
-                             path: '/TemplateMaster',
-                             parameters: {
-                                            $expand: 'mappings'
-                                        }
-                                            }"
+        path: '/TemplateMaster',
+        parameters: {
+            $expand: 'mappings'
+        }
+    }"
                 >
                     <columns>
                         <Column>
@@ -41,23 +41,16 @@
                     </columns>
 
                     <items>
-                        <ColumnListItem
-                            type="Navigation"
-                            press=".onRowPress"
-                        >
+                        <ColumnListItem>
                             <cells>
                                 <Text text="{templateName}" />
                                 <Text text="{templateType}" />
                                 <Text text="{sheetMode}" />
-                                <Text
-                                    text="{
-                                                path: '',
-                                                formatter: '.formatFieldsCount'
-                                            }"
-                                    textAlign="Center"
-                                />
+
+                                <Text text="{= ${mappings}.length || 0 }" />
 
                                 <Button
+                                    id="deleteTemplateButton"
                                     text="Delete"
                                     type="Reject"
                                     press=".onDeleteTemplate"
@@ -83,4 +76,5 @@
             </items>
         </List>
     </Page>
+    <!-- </Page> -->
 </mvc:View>

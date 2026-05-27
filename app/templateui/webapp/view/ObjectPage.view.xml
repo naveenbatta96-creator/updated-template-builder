@@ -1,0 +1,104 @@
+<mvc:View
+    controllerName="com.template.builder.controller.ObjectPage"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:uxap="sap.uxap"
+    xmlns:layout="sap.ui.layout"
+>
+    <uxap:ObjectPageLayout
+        id="ObjectPageLayout"
+        showTitleInHeaderContent="true"
+    >
+        <uxap:headerTitle>
+            <uxap:ObjectPageDynamicHeaderTitle>
+                <uxap:expandedHeading>
+                    <Title
+                        text="{templateName}"
+                        wrapping="true"
+                        class="sapUiSmallMarginEnd"
+                    />
+                </uxap:expandedHeading>
+                <uxap:snappedHeading>
+                    <Title
+                        text="{templateName}"
+                        wrapping="true"
+                    />
+                </uxap:snappedHeading>
+                <uxap:expandedContent>
+                    <Text text="{templateType} Mode | Sheet: {sheetMode}" />
+                </uxap:expandedContent>
+                <uxap:actions>
+                    <Button
+                        text="Edit"
+                        type="Emphasized"
+                        press=".onEdit"
+                    />
+                    <Button
+                        text="Delete"
+                        type="Transparent"
+                        press=".onDelete"
+                    />
+                </uxap:actions>
+            </uxap:ObjectPageDynamicHeaderTitle>
+        </uxap:headerTitle>
+
+        <uxap:sections>
+            <uxap:ObjectPageSection title="General Information">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <uxap:blocks>
+                            <layout:VerticalLayout>
+                                <Label
+                                    text="Template Status"
+                                    design="Bold"
+                                />
+                                <ObjectStatus
+                                    text="{status}"
+                                    state="{= ${status} === 'ACTIVE' ? 'Success' : 'Warning' }"
+                                />
+                            </layout:VerticalLayout>
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+
+            <uxap:ObjectPageSection title="Mapped Fields">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <uxap:blocks>
+                            <Table
+                                id="mappedFieldsTable"
+                                items="{mappings}"
+                            >
+                                <columns>
+                                    <Column width="5em">
+                                        <Text text="Seq." />
+                                    </Column>
+                                    <Column>
+                                        <Text text="Field ID" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="Field Name" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="Level" />
+                                    </Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{sequenceNo}" />
+                                            <Text text="{field_ID}" />
+                                            <Text text="{field/fieldName}" />
+                                            <Text text="{field/levelName}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+        </uxap:sections>
+    </uxap:ObjectPageLayout>
+</mvc:View>

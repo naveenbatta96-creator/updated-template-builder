@@ -53,6 +53,12 @@
         }
     }
     },
+    "counterModel": {
+      "type": "sap.ui.model.json.JSONModel",
+      "settings": {
+        "selectedCount": 0
+      }
+    },
 
     "routing": {
       "config": {
@@ -69,15 +75,21 @@
           "name": "RouteHome",
           "pattern": "",
           "target": "TargetHome"
+        },
+        {
+          "name": "RouteObjectPage",
+          "pattern": "Template/{templateId}",
+          "target": "TargetObjectPage"
         }
       ],
-
       "targets": {
         "TargetHome": {
           "viewName": "Home"
+        },
+        "TargetObjectPage": {
+          "viewName": "ObjectPage" 
         }
       }
-    }
   },
 
   "sap.ui": {
@@ -87,4 +99,5 @@
   "sap.cloud": {
     "public": true
   }
+}
 }
