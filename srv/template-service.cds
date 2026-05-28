@@ -2,7 +2,7 @@ using lockbox.templatebuilder as db from '../db/schema';
 
 service TemplateService {
 
-    
+    @cds.redirection.target
     entity TemplateMaster
         as projection on db.TemplateMaster;
 
@@ -11,6 +11,10 @@ service TemplateService {
 
     entity TemplateFieldMapping
         as projection on db.TemplateFieldMapping;
+    
+    @readonly
+    entity templateMasterWithCount
+        as projection on db.TemplateMasterWithCount;
 
     action addFieldsToTemplate(
         templateId : UUID,

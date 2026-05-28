@@ -8,59 +8,33 @@ sap.ui.define([
 ], function (Controller, Fragment, MessageToast, JSONModel, Filter, FilterOperator) {
     "use strict";
 
-    return Controller.extend("com.lockbox.templatebuilder.controller.Home", {
+    return Controller.extend("com.template.builder.controller.Home", {
 
         //===================================================================================================
         // Controller Lifecycle Methods
         //===================================================================================================
-
         onInit: function(){
-        },
-
-        //=====================================================================================================
-        //Formatter Functions
-        //=====================================================================================================
-        // FORMAT ROW NUMBER (1, 2, 3, ...)
- 
-        // ✅ FORMAT FIELDS COUNT FROM MAPPINGS
-        formatFieldsCount: function (oContext) {
-            // 1. Safety check
-            if (!oContext || typeof oContext.getProperty !== "function") {
-                return "0";
-            }
-        
-            // 2. Safely ask the OData V4 model for the mappings array for this specific row
-            var aMappings = oContext.getProperty("mappings");
-        
-            if (!aMappings) {
-                return "0";
-            }
+            // 1. Create a new JSON Model to hold our counter data
+            var oCounterModel = new JSONModel({
+                selectedCount: 0
+            });
             
-            // 3. If it's an array, return length
-            if (Array.isArray(aMappings)) {
-                return aMappings.length.toString();
-            }
-            
-            // 4. Fallback for object length
-            if (aMappings.length !== undefined) {
-                return aMappings.length.toString();
-            }
-            
-            return "0";
+            // 2. Attach it to the View so your other functions can find it!
+            this.getView().setModel(oCounterModel, "counterModel");
         },
 
         //=====================================================================================================
         // Event Handlers
         //=====================================================================================================
         
-        
         onTableSelectionChange: function(oEvent){
             var oTable = oEvent.getSource();
             var iSelectedcount = oTable.getSelectedItems().length;
-            this.getModel("counterModel").setProperty("/selectedCount",iSelectedcount);
-
-
+            
+            // FIXED: Added .getView()
+            this.getView().getModel("counterModel").setProperty("/selectedCount", iSelectedcount);
         },
+
         onCreateTemplate: async function () {
             console.log("Create Template Clicked");
             try {
@@ -98,7 +72,7 @@ sap.ui.define([
                 const sTemplateType = Fragment.byId(this.getView().getId(), "templateTypeSelect").getSelectedKey();
                 const sSheetMode = Fragment.byId(this.getView().getId(), "sheetModeSelect").getSelectedKey();
 
-                // 1. GET SELECTED FIELDS WITH SQLite IDs
+                // 1. GET SELECTED FIELDS
                 const aSelectedFields = this._getSelectedFields();
                 console.log("Selected Fields for DB:", aSelectedFields);
 
@@ -116,8 +90,8 @@ sap.ui.define([
                 // 2. CONSTRUCT THE DEEP INSERT PAYLOAD FOR CAPM
                 const aMappingsPayload = aSelectedFields.map(function (oField, index) {
                     return {
-                        field_ID: oField.ID,       // CAPM automatically maps associations to Entity_ID
-                        sequenceNo: index + 1      // Sequential ordering
+                        field_ID: oField.ID,
+                        sequenceNo: index + 1
                     };
                 });
 
@@ -126,15 +100,13 @@ sap.ui.define([
                     templateType: sTemplateType,
                     sheetMode: sSheetMode,
                     status: "ACTIVE",
-                    mappings: aMappingsPayload     // Composition navigation property name from schema.cds
+                    mappings: aMappingsPayload
                 };
-
-                console.log("OData V4 Deep Insert Payload:", oTemplatePayload);
 
                 // 3. TARGET DEFAULT ODATA V4 MODEL
                 const oODataModel = this.getView().getModel(); 
                 
-                // 4. BIND LIST TO THE ENTITY SET
+                // 4. BIND LIST TO THE BASE ENTITY SET (Required for POST)
                 const oListBinding = oODataModel.bindList("/TemplateMaster");
 
                 sap.ui.core.BusyIndicator.show(0);
@@ -142,10 +114,17 @@ sap.ui.define([
                 // 5. EXECUTE THE V4 CREATE OPERATION
                 const oNewContext = oListBinding.create(oTemplatePayload);
 
-                // 6. ODATA V4 PROMISE HANDLING FOR DATABASE PERSISTENCE
+                // 6. ODATA V4 PROMISE HANDLING
                 oNewContext.created().then(function () {
                     sap.ui.core.BusyIndicator.hide();
                     MessageToast.show("Template saved persistently to SQLite via CAPM!");
+                    
+                    // NEW: Refresh the table so the backend View recalculates the counts
+                    var oTable = this.byId("templateTable");
+                    if (oTable && oTable.getBinding("items")) {
+                        oTable.getBinding("items").refresh();
+                    }
+
                     this.onCloseDialog();
                 }.bind(this)).catch(function (oError) {
                     sap.ui.core.BusyIndicator.hide();
@@ -171,9 +150,8 @@ sap.ui.define([
 
             var aSelectedItems = oTable.getSelectedItems();
             
-            this.getModel("counterModel").setProperty("/selectedCount",aSelectedItems.length);
-           
-
+            // FIXED: Added .getView()
+            this.getView().getModel("counterModel").setProperty("/selectedCount", aSelectedItems.length);
 
             aSelectedItems.forEach(function (oItem) {
                 var oContext = oItem.getBindingContext(); 
@@ -181,13 +159,12 @@ sap.ui.define([
                 if (oContext) {
                     var oData = oContext.getObject();
                     aFields.push({
-                        ID: oData.ID, // Extracting the SQLite UUID primary key
+                        ID: oData.ID,
                         fieldName: oData.fieldName,
                         levelName: oData.levelName,
                         sapType: oData.sapType
                     });
                 }
-
             });
 
             return aFields;
@@ -195,13 +172,12 @@ sap.ui.define([
 
         onDeleteTemplate: function (oEvent) {
             const oItem = oEvent.getSource().getParent();
-            const oContext = oItem.getBindingContext(); // Grab the V4 Context directly
+            const oContext = oItem.getBindingContext();
             
             if (!oContext) return;
 
             sap.ui.core.BusyIndicator.show(0);
 
-            // 💡 V4 Standard: Call .delete() straight on the binding context returning a Promise
             oContext.delete().then(function () {
                 sap.ui.core.BusyIndicator.hide();
                 MessageToast.show("Template deleted from SQLite database.");
@@ -232,28 +208,20 @@ sap.ui.define([
         },
 
         // ==========================================
-        // NEW ROW PRESS FUNCTION ADDED BELOW
+        // ROW PRESS NAVIGATION
         // ==========================================
         
         onRowPress: function (oEvent) {
-            // 1. Get the list item that fired the press event
             var oItem = oEvent.getSource();
-            
-            // 2. Get the OData V4 binding context for that row
             var oContext = oItem.getBindingContext(); 
             
             if (!oContext) {
                 return;
             }
 
-            // 3. Extract the primary key (assuming "ID" based on your _getSelectedFields logic)
             var sTemplateId = oContext.getProperty("ID"); 
-
-            // 4. Trigger Navigation
             var oRouter = this.getOwnerComponent().getRouter();
-            
-            // NOTE: Replace "YourDetailRouteName" with your actual route from manifest.json
-            // NOTE: Replace "templateId" with the actual parameter name defined in your route pattern
+
             oRouter.navTo("RouteObjectPage", {
                 templateId: sTemplateId
             });

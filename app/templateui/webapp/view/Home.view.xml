@@ -3,25 +3,35 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
 >
-    <Page title="Template Builder">
+    <Page
+        title="Template Builder"
+        titleLevel="H1"
+    >
         <content>
             <VBox class="sapUiMediumMargin">
+                <OverflowToolbar>
+                    <ToolbarSpacer />
+                    <Button
+                        text="Create Template"
+                        type="Emphasized"
+                        press=".onCreateTemplate"
+                    />
+                </OverflowToolbar>
+
+                <!-- 
                 <Button
                     text="Create Template"
                     type="Emphasized"
                     press=".onCreateTemplate"
-                />
+                /> -->
 
                 <Table
                     id="templateTable"
                     class="sapUiMediumMarginTop"
                     items="{
-                             path: '/TemplateMaster',
-                             parameters: {
-                                            $expand: 'mappings'
-                                        }
-                                            }"
-                >
+                     path: '/templateMasterWithCount'
+                    }"
+                        >
                     <columns>
                         <Column>
                             <Text text="Template Name" />
@@ -49,13 +59,8 @@
                                 <Text text="{templateName}" />
                                 <Text text="{templateType}" />
                                 <Text text="{sheetMode}" />
-                                <Text
-                                    text="{
-                                                path: '',
-                                                formatter: '.formatFieldsCount'
-                                            }"
-                                    textAlign="Center"
-                                />
+
+                                <Text text="{mappingsCount}" />
 
                                 <Button
                                     text="Delete"
@@ -68,19 +73,5 @@
                 </Table>
             </VBox>
         </content>
-        <List
-            headerText="Saved Templates Monitor"
-            items="{templateModel>/templates}"
-            noDataText="No templates saved in this session yet"
-            class="sapUiMediumMarginTop"
-        >
-            <items>
-                <StandardListItem
-                    title="{templateModel>name}"
-                    description="Type: {templateModel>type} | Mode: {templateModel>sheetMode}"
-                    info="Fields Selected: {= ${templateModel>selectedFields}.length }"
-                />
-            </items>
-        </List>
     </Page>
 </mvc:View>

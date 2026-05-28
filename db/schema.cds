@@ -42,3 +42,11 @@ entity TemplateFieldMapping : cuid {
 
     sequenceNo     : Integer;
 }
+//================================================================
+// View for Field Count in a saved template
+//================================================================
+view TemplateMasterWithCount as select from TemplateMaster {
+    *,
+    (select count(*) from TemplateFieldMapping 
+     where TemplateFieldMapping.template.ID = TemplateMaster.ID) as mappingsCount : Integer
+};

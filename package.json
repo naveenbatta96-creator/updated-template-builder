@@ -4,12 +4,14 @@
   "dependencies": {
     "@cap-js/postgres": "^2.3.0",
     "@sap/cds": "^9",
+    "@sap/ux-ui5-tooling": "^1.25.0",
     "sqlite3": "^6.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2.4",
     "@sap/cds-dk": "^9",
+    "@ui5/cli": "^4.0.55",
     "cds-plugin-ui5": "^0.13.0",
     "mbt": "^1.2.49",
     "rimraf": "^5.0.5"
