@@ -31,7 +31,7 @@
                     items="{
                      path: '/templateMasterWithCount'
                     }"
-                        >
+                >
                     <columns>
                         <Column>
                             <Text text="Template Name" />
@@ -61,12 +61,20 @@
                                 <Text text="{sheetMode}" />
 
                                 <Text text="{mappingsCount}" />
-
-                                <Button
-                                    text="Delete"
-                                    type="Reject"
-                                    press=".onDeleteTemplate"
-                                />
+                                <HBox>
+                                    <Button
+                                        icon="sap-icon://download"
+                                        type="Accept"
+                                        tooltip="Download to Excel"
+                                        press=".onDownloadExcel"
+                                        class="sapUiTinyMarginEnd"
+                                    />
+                                    <Button
+                                        text="Delete"
+                                        type="Reject"
+                                        press=".onDeleteTemplate"
+                                    />
+                                </HBox>
                             </cells>
                         </ColumnListItem>
                     </items>

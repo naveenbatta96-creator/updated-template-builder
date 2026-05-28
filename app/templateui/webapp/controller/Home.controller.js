@@ -4,8 +4,12 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
-], function (Controller, Fragment, MessageToast, JSONModel, Filter, FilterOperator) {
+    "sap/ui/model/FilterOperator",
+    "sap/ui/export/Spreadsheet",
+    "xlsx",
+    "sap/ui/export/library"
+
+], function (Controller, Fragment, MessageToast, JSONModel, Filter, FilterOperator,Spreadsheet, exportLibrary, XLSX ) {
     "use strict";
 
     return Controller.extend("com.template.builder.controller.Home", {

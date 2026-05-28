@@ -1,1 +1,0 @@
-using TemplateService as service from '../../srv/template-service';

@@ -20,4 +20,9 @@ service TemplateService {
         templateId : UUID,
         fieldIds   : many UUID
     );
+    action downloadTemplate(
+        templateID :UUID,
+        expportMode : String
+    ) returns LargeBinary;
+
 }

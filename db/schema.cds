@@ -40,7 +40,7 @@ entity TemplateFieldMapping : cuid {
 
     field          : Association to FieldMaster;
 
-    sequenceNo     : Integer;
+    sequenceNo     : Integer;eld
 }
 //================================================================
 // View for Field Count in a saved template
