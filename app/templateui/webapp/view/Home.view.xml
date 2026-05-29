@@ -1,12 +1,20 @@
 <mvc:View
     controllerName="com.template.builder.controller.Home"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:f="sap.f"
     xmlns="sap.m"
 >
-    <Page
-        title="Template Builder"
-        titleLevel="H1"
-    >
+    <Page showHeader="true">
+        <customHeader>
+            <f:ShellBar
+                title="Template Builder"
+                showCopilot="false"
+                showSearch="false"
+                showNotifications="false"
+                showProductSwitcher="false"
+                homeIcon="https://www.sap.com/dam/application/shared/logos/sap-logo-svg.svg"
+            />
+        </customHeader>
         <content>
             <VBox class="sapUiMediumMargin">
                 <OverflowToolbar>
@@ -34,6 +42,9 @@
                 >
                     <columns>
                         <Column>
+                            <Text text="Template Id" />
+                        </Column>
+                        <Column>
                             <Text text="Template Name" />
                         </Column>
                         <Column>
@@ -44,6 +55,9 @@
                         </Column>
                         <Column>
                             <Text text="Total Fields" />
+                        </Column>
+                        <Column >
+                        <Text  text="Created" />
                         </Column>
                         <Column>
                             <Text text="Actions" />
@@ -56,11 +70,19 @@
                             press=".onRowPress"
                         >
                             <cells>
+                                <Text text="{
+                                    parts: [
+                                        {path: 'ID'},
+                                        {path: 'templateType'}
+                                    ],
+                                    formatter: '.formatTemplateID'
+                                }" />
                                 <Text text="{templateName}" />
                                 <Text text="{templateType}" />
                                 <Text text="{sheetMode}" />
 
                                 <Text text="{mappingsCount}" />
+                                <Text text="{path: 'createdAt', formatter: '.formatDate'}" />
                                 <HBox>
                                     <Button
                                         icon="sap-icon://download"

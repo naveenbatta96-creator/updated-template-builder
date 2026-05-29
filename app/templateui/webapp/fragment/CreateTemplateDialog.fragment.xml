@@ -1,35 +1,17 @@
-<core:FragmentDefinition
-    xmlns="sap.m"
-    xmlns:core="sap.ui.core"
->
-    <Dialog
-        id="createTemplateDialog"
-        title="Create Template"
-        contentWidth="1000px"
-        draggable="true"
-        resizable="true"
-    >
+<core:FragmentDefinition xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Dialog id="createTemplateDialog" title="Create Template" contentWidth="1000px" draggable="true" resizable="true">
         <content>
             <VBox class="sapUiMediumMargin">
                 <!-- TOP ROW -->
 
-                <HBox
-                    width="100%"
-                    alignItems="End"
-                    class="sapUiSmallMarginBottom"
-                >
+                <HBox width="100%" alignItems="End" class="sapUiSmallMarginBottom">
                     <!-- TEMPLATE NAME -->
 
-                    <VBox
-                        width="70%"
-                        class="sapUiSmallMarginEnd"
-                    >
+                    <VBox width="70%" class="sapUiSmallMarginEnd">
                         <Label text="Template Name" />
 
-                        <Input
-                            id="templateNameInput"
-                            placeholder="Enter template name"
-                        />
+                        <Input id="templateNameInput" placeholder="Enter template name" />
                     </VBox>
 
                     <!-- TEMPLATE TYPE -->
@@ -37,139 +19,91 @@
                     <VBox width="30%">
                         <Label text="Template Type"/>
 
-                        <Select
-                            id="templateTypeSelect"
-                            selectedKey="LOCKBOX"
-                            width="100%"
-                        >
+                        <Select id="templateTypeSelect" selectedKey="LOCKBOX" width="100%">
                             <items>
-                                <core:Item
-                                    key="AllLEVELS"
-                                    text="All Levels"
-                                />
+                                <core:Item key="AllLEVELS" text="All Levels" />
 
-                                <core:Item
-                                    key="LOCKBOX"
-                                    text="Lockbox"
-                                />
+                                <core:Item key="LOCKBOX" text="Lockbox" />
 
-                                <core:Item
-                                    key="PAYMENT"
-                                    text="Payment upload"
-                                />
+                                <core:Item key="PAYMENT" text="Payment upload" />
 
-                                <core:Item
-                                    key="CLEARING"
-                                    text="Clearing upload" 
-                                />
+                                <core:Item key="CLEARING" text="Clearing upload" />
                             </items>
                         </Select>
                     </VBox>
                 </HBox>
-                <Table
-                    id="fieldsTable"
-                    mode="MultiSelect"
-                    growing="true"
-                    growingScrollToLoad="true"
-                    class="sapUiMediumMarginTop"
-                    items="{path: '/FieldMaster'}"
-                >
+                <Table id="fieldsTable" mode="MultiSelect" growing="true" growingScrollToLoad="true" class="sapUiMediumMarginTop" items="{path: '/FieldMaster'}">
                     <headerToolbar>
                         <Toolbar>
                             <Title text="Choose Fields" />
 
                             <ToolbarSpacer />
 
-                            <Select
-                                id="levelFilterSelect"
-                                width="180px"
-                                change=".onLevelFilterChange"
-                                
-                            >
+                            <Button icon="sap-icon://add" text="Add Field" type="Transparent" press=".onAddNewField" class="sapUiTinyMarginEnd" />
+
+                            <Select id="levelFilterSelect" width="180px" change=".onLevelFilterChange">
                                 <items>
-                                    <core:Item
-                                        key="ALL"
-                                        text="All Levels"
-                                    />
+                                    <core:Item key="ALL" text="All Levels" />
 
-                                    <core:Item
-                                        key="HEADER"
-                                        text="Header"
-                                    />
+                                    <core:Item key="HEADER" text="Header" />
 
-                                    <core:Item
-                                        key="PAYMENT"
-                                        text="Payment"
-                                    />
+                                    <core:Item key="PAYMENT" text="Payment" />
 
-                                    <core:Item
-                                        key="CLEARING"
-                                        text="Clearing"
-                                    />
+                                    <core:Item key="CLEARING" text="Clearing" />
                                 </items>
                             </Select>
                         </Toolbar>
                     </headerToolbar>
 
                     <columns>
-                        <Column width="30%" >
+                        <Column width="20%">
                             <Text text="Level" />
                         </Column>
 
                         <Column width="50%">
-                            <Text text="Field Name" />
+                            <Text text="Field Description" />
                         </Column>
 
-                        <Column width="20%">
-                            <Text text="Type" />
+                        <Column width="15%">
+                            <Text text="Property" />
+                        </Column>
+
+                        <Column width="15%">
+                            <Text text="Max Length" />
                         </Column>
                     </columns>
 
                     <items>
                         <ColumnListItem>
                             <cells>
-                                <!-- LEVEL TAG -->
+                                <!-- LEVEL -->
+                                <ObjectStatus text="{= ${levelName} === 'HEADER' ? 'Header' : (${levelName} === 'PAYMENT' ? 'Payment' : 'Clearing') }" state="{= ${levelName} === 'HEADER' ? 'Information' : (${levelName} === 'PAYMENT' ? 'Success' : 'Indication05') }" />
 
-                                <ObjectStatus
-                                    text="{levelName}"
-                                    state="Information"
-                                />
+                                <!-- FIELD DESCRIPTION & CUSTOM TAG -->
+                                <HBox alignItems="Center">
+                                    <Text text="{fieldName}" design="Bold" class="sapUiTinyMarginEnd" />
+                                    <ObjectStatus text="Custom" state="Indication06" visible="{path: 'ID', formatter: '.formatCustomBadge'}" />
+                                </HBox>
 
-                                <!-- FIELD NAME -->
+                                <!-- PROPERTY -->
+                                <ObjectStatus text="{= ${isRequired} ? 'Required' : 'Optional' }" state="{= ${isRequired} ? 'Error' : 'None' }" />
 
-                                <Text text="{fieldName}" />
-
-                                <!-- SAP TYPE -->
-
-                                <Text text="{sapType}" />
+                                <!-- MAX LENGTH -->
+                                <Text text="{fieldLength}" />
                             </cells>
                         </ColumnListItem>
                     </items>
                 </Table>
                 <!-- SHEET MODE -->
-                <HBox
-                    width="100%"
-                    justifyContent="End"
-                    class="sapUiMediumMarginTop"
-                >
+                <HBox width="100%" justifyContent="End" class="sapUiMediumMarginTop">
                     <VBox class="sapUiMediumMarginTop">
                         <Label text="Sheet Mode" />
 
-                        <Select
-                            id="sheetModeSelect"
-                            selectedKey="SINGLE"
-                            width="220px"
-                        >
+                        <Select id="sheetModeSelect" selectedKey="SINGLE" width="220px">
                             <items>
-                                <core:Item
-                                    key="SINGLE"
-                                    text="Single Sheet"
-                                />
+                                <core:Item key="SINGLE" text="Single Sheet" />
 
-                                <core:Item
-                                    key="MULTIPLE"
-                                    text="Multiple Sheets"
-                                />
+                                <core:Item key="MULTIPLE" text="Multiple Sheets" />
                             </items>
                         </Select>
                     </VBox>
@@ -178,18 +112,11 @@
         </content>
 
         <beginButton>
-            <Button
-                text="Save"
-                type="Emphasized"
-                press=".onSaveTemplate"
-            />
+            <Button text="Save" type="Emphasized" press=".onSaveTemplate" />
         </beginButton>
 
         <endButton>
-            <Button
-                text="Cancel"
-                press=".onCloseDialog"
-            />
+            <Button text="Cancel" press=".onCloseDialog" />
         </endButton>
     </Dialog>
 </core:FragmentDefinition>

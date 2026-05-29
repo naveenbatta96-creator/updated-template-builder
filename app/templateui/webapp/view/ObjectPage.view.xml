@@ -83,6 +83,9 @@
                                     <Column>
                                         <Text text="Level" />
                                     </Column>
+                                    <Column width="4em">
+                                        <Text text="Action" />
+                                    </Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem>
@@ -91,6 +94,11 @@
                                             <Text text="{field_ID}" />
                                             <Text text="{field/fieldName}" />
                                             <Text text="{field/levelName}" />
+                                            <Button
+                                                icon="sap-icon://delete"
+                                                type="Reject"
+                                                press=".onDeleteMapping"
+                                            />
                                         </cells>
                                     </ColumnListItem>
                                 </items>

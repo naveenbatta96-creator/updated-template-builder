@@ -22,7 +22,7 @@ service TemplateService {
     );
     action downloadTemplate(
         templateID :UUID,
-        expportMode : String
+        exportMode : String
     ) returns LargeBinary;
 
 }
