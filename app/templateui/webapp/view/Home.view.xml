@@ -17,22 +17,6 @@
         </customHeader>
         <content>
             <VBox class="sapUiMediumMargin">
-                <OverflowToolbar>
-                    <ToolbarSpacer />
-                    <Button
-                        text="Create Template"
-                        type="Emphasized"
-                        press=".onCreateTemplate"
-                    />
-                </OverflowToolbar>
-
-                <!-- 
-                <Button
-                    text="Create Template"
-                    type="Emphasized"
-                    press=".onCreateTemplate"
-                /> -->
-
                 <Table
                     id="templateTable"
                     class="sapUiMediumMarginTop"
@@ -40,6 +24,16 @@
                      path: '/templateMasterWithCount'
                     }"
                 >
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Button
+                                text="Create Template"
+                                type="Emphasized"
+                                icon="sap-icon://add"
+                                press=".onCreateTemplate"
+                            />
+                        </OverflowToolbar>
+                    </headerToolbar>
                     <columns>
                         <Column>
                             <Text text="Template Id" />

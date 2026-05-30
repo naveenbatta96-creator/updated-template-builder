@@ -58,6 +58,24 @@ sap.ui.define([
             return !bIsStandard;
         },
 
+        formatLevelState: function (sLevelName) {
+            var oLevelColors = {
+                "HEADER": "Information",    // Blue
+                "PAYMENT": "Success",       // Green
+                "CLEARING": "Warning"       // Orange
+            };
+            return oLevelColors[sLevelName] || "None";
+        },
+
+        formatLevelText: function (sLevelName) {
+            var oLevelTexts = {
+                "HEADER": "Header",
+                "PAYMENT": "Payment",
+                "CLEARING": "Clearing"
+            };
+            return oLevelTexts[sLevelName] || sLevelName;
+        },
+
         //===================================================================================================
         // Controller Lifecycle Methods
         //===================================================================================================

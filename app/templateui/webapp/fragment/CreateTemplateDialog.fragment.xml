@@ -3,35 +3,7 @@
     <Dialog id="createTemplateDialog" title="Create Template" contentWidth="1000px" draggable="true" resizable="true">
         <content>
             <VBox class="sapUiMediumMargin">
-                <!-- TOP ROW -->
-
-                <HBox width="100%" alignItems="End" class="sapUiSmallMarginBottom">
-                    <!-- TEMPLATE NAME -->
-
-                    <VBox width="70%" class="sapUiSmallMarginEnd">
-                        <Label text="Template Name" />
-
-                        <Input id="templateNameInput" placeholder="Enter template name" />
-                    </VBox>
-
-                    <!-- TEMPLATE TYPE -->
-
-                    <VBox width="30%">
-                        <Label text="Template Type"/>
-
-                        <Select id="templateTypeSelect" selectedKey="LOCKBOX" width="100%">
-                            <items>
-                                <core:Item key="AllLEVELS" text="All Levels" />
-
-                                <core:Item key="LOCKBOX" text="Lockbox" />
-
-                                <core:Item key="PAYMENT" text="Payment upload" />
-
-                                <core:Item key="CLEARING" text="Clearing upload" />
-                            </items>
-                        </Select>
-                    </VBox>
-                </HBox>
+                <!-- Field Catalog Table -->
                 <Table id="fieldsTable" mode="MultiSelect" growing="true" growingScrollToLoad="true" class="sapUiMediumMarginTop" items="{path: '/FieldMaster'}">
                     <headerToolbar>
                         <Toolbar>
@@ -77,12 +49,12 @@
                         <ColumnListItem>
                             <cells>
                                 <!-- LEVEL -->
-                                <ObjectStatus text="{= ${levelName} === 'HEADER' ? 'Header' : (${levelName} === 'PAYMENT' ? 'Payment' : 'Clearing') }" state="{= ${levelName} === 'HEADER' ? 'Information' : (${levelName} === 'PAYMENT' ? 'Success' : 'Indication05') }" />
+                                <ObjectStatus text="{path: 'levelName', formatter: '.formatLevelText'}" state="{path: 'levelName', formatter: '.formatLevelState', targetType: 'any'}" />
 
                                 <!-- FIELD DESCRIPTION & CUSTOM TAG -->
                                 <HBox alignItems="Center">
                                     <Text text="{fieldName}" design="Bold" class="sapUiTinyMarginEnd" />
-                                    <ObjectStatus text="Custom" state="Indication06" visible="{path: 'ID', formatter: '.formatCustomBadge'}" />
+                                    <ObjectStatus text="Custom" state="Indication06" visible="{path: 'ID', formatter: '.formatCustomBadge', targetType: 'any'}" />
                                 </HBox>
 
                                 <!-- PROPERTY -->
@@ -94,17 +66,35 @@
                         </ColumnListItem>
                     </items>
                 </Table>
-                <!-- SHEET MODE -->
-                <HBox width="100%" justifyContent="End" class="sapUiMediumMarginTop">
-                    <VBox class="sapUiMediumMarginTop">
-                        <Label text="Sheet Mode" />
+                <!-- TEMPLATE DETAILS ROW -->
+                <HBox width="100%" alignItems="End" class="sapUiMediumMarginTop">
+                    <!-- TEMPLATE NAME -->
+                    <VBox width="40%" class="sapUiSmallMarginEnd">
+                        <Label text="Template Name" required="true" />
+                        <Input id="templateNameInput" placeholder="Enter template name" width="100%" />
+                    </VBox>
 
-                        <Select id="sheetModeSelect" selectedKey="SINGLE" width="220px">
+                    <!-- TEMPLATE TYPE -->
+                    <VBox width="30%" class="sapUiSmallMarginEnd">
+                        <Label text="Template Type" />
+                        <Select id="templateTypeSelect" selectedKey="LOCKBOX" width="100%">
+                            <items>
+                                <core:Item key="AllLEVELS" text="All Levels" />
+                                <core:Item key="LOCKBOX" text="Lockbox" />
+                                <core:Item key="PAYMENT" text="Payment upload" />
+                                <core:Item key="CLEARING" text="Clearing upload" />
+                            </items>
+                        </Select>
+                    </VBox>
+
+                    <!-- SHEET MODE -->
+                    <VBox width="30%">
+                        <Label text="Sheet Mode" />
+                        <Select id="sheetModeSelect" selectedKey="SINGLE" width="100%">
                             <items>
                                 <core:Item key="SINGLE" text="Single Sheet" />
-
                                 <core:Item key="MULTIPLE" text="Multiple Sheets" />
-                            </items>
+                              </items>
                         </Select>
                     </VBox>
                 </HBox>

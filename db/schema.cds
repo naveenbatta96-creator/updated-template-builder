@@ -36,11 +36,17 @@ entity FieldMaster : cuid {
 
 entity TemplateFieldMapping : cuid {
 
-    template   : Association to TemplateMaster;
+    template    : Association to TemplateMaster;
 
-    field      : Association to FieldMaster;
+    field       : Association to FieldMaster;
 
-    sequenceNo : Integer;
+    sequenceNo  : Integer;
+
+    apiField    : String(100);
+
+    mappingRule : String(100);
+
+    ruleId      : String(50);
 }
 
 //================================================================
