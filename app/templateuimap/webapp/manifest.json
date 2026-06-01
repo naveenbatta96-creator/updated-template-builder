@@ -1,0 +1,169 @@
+{
+  "_version": "1.85.0",
+  "sap.app": {
+    "id": "nav.template.builder.templateuimap",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.25.0",
+      "toolsId": "c784d398-951a-4f36-b407-fc237434b1cd"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/template/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.148.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "nav.template.builder.templateuimap.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "TemplateMasterList",
+          "target": "TemplateMasterList"
+        },
+        {
+          "pattern": "TemplateMaster({key}):?query:",
+          "name": "TemplateMasterObjectPage",
+          "target": "TemplateMasterObjectPage"
+        },
+        {
+          "pattern": "TemplateMaster({key})/mappings({key2}):?query:",
+          "name": "TemplateFieldMappingObjectPage",
+          "target": "TemplateFieldMappingObjectPage"
+        }
+      ],
+      "targets": {
+        "TemplateMasterList": {
+          "type": "Component",
+          "id": "TemplateMasterList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/TemplateMaster",
+              "variantManagement": "Page",
+              "navigation": {
+                "TemplateMaster": {
+                  "detail": {
+                    "route": "TemplateMasterObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TemplateMasterObjectPage": {
+          "type": "Component",
+          "id": "TemplateMasterObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/TemplateMaster",
+              "navigation": {
+                "mappings": {
+                  "detail": {
+                    "route": "TemplateFieldMappingObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TemplateFieldMappingObjectPage": {
+          "type": "Component",
+          "id": "TemplateFieldMappingObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/TemplateMaster/mappings"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.fe": {
+    "app": {
+      "enableLazyLoading": true
+    }
+  }
+}
