@@ -1,3 +1,2 @@
 
-
-using from './templateuimap/annotations';
+using from './templatemap/annotations';

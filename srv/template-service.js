@@ -1,77 +1,197 @@
 const cds = require('@sap/cds');
 const XLSX = require('xlsx');
 
-module.exports = cds.service.impl(async function() {
-    
-    this.on('downloadTemplate', async (req) => {
-        const {templateID, exportMode} = req.data;
-        
-        // 1. Fetch data from DB (Fixed commas)
-        const template = await SELECT.one.from('TemplateMaster')
-        .where({ID : templateID})
-        .columns(t => { 
-            t.templateName, 
-            t.mappings(m => {
-                m.field(f => {
-                    f.levelName, 
-                    f.fieldName,
-                    f.sapType
-                })
-         })  
-        }); // Do NOT close the this.on block here!
+module.exports = cds.service.impl(async function () {
 
-        // 2. Validation (Fixed extra parenthesis)
-        if(!template || !template.mappings) {
-            return req.error(404, 'Template not found');
-        }
+    const { TemplateMaster, TemplateFieldMapping, FieldMaster, TemplateMasterWithCount } = this.entities;
 
-        // 3. Clean up raw JSON (Fixed m.field targeting)
-        const aExcelData = template.mappings.map(m  => {
-            return {
-               "Level Name" : m.field.levelName,
-               "Field Name" : m.field.fieldName,
-               "SAP Type" : m.field.sapType
+    // ================================================================
+    // Calculate mappingsCount dynamically after READ
+    // ================================================================
+    this.after('READ', 'TemplateMasterWithCount', async (each) => {
+        if (!each) return;
+        const aEntries = Array.isArray(each) ? each : [each];
+        for (const item of aEntries) {
+            if (item.ID) {
+                const countRes = await SELECT.one
+                    .from(TemplateFieldMapping)
+                    .where({ template_ID: item.ID })
+                    .columns('count(*) as count');
+                item.mappingsCount = countRes && countRes.count
+                    ? parseInt(countRes.count, 10)
+                    : 0;
             }
-        });
+        }
+    });
 
-        // 4. Create a new workbook and add the data
-        const oWorkbook = XLSX.utils.book_new();
+    // ================================================================
+    // Intercept CREATE on TemplateMaster
+    // Forces insert into real base table instead of the view
+    // ================================================================
+    this.on('CREATE', TemplateMaster, async (req) => {
+        try {
+            await INSERT.into('lockbox.templatebuilder.TemplateMaster').entries(req.data);
+            return req.data;
+        } catch (err) {
+            console.error("CREATE TemplateMaster failed:", err);
+            return req.error(500, err.message);
+        }
+    });
 
-        if(exportMode === 'SINGLE') {
-            const oWorksheet = XLSX.utils.json_to_sheet(aExcelData);
-            XLSX.utils.book_append_sheet(oWorkbook, oWorksheet, 'Template');
-            
-        } else if (exportMode === 'MULTIPLE') {
-            // Group data by level name
-            const oGroupedData = {};
-            
-            aExcelData.forEach(row => {
-                // Fixed: Matched the exact column name "Level Name"
-                const level = row["Level Name"] || "Unassigned";
-                
-                // Fixed logic: Create array if it doesn't exist, then push
-                if(!oGroupedData[level]) { 
-                    oGroupedData[level] = [];
+    // ================================================================
+    // Download Template as Excel
+    // ================================================================
+    // ================================================================
+    // Download Template as Excel (Streamed Native Download)
+    // ================================================================
+    this.on('downloadTemplate', 'TemplateMasterWithCount', async (req) => {
+        try {
+            const { exportMode } = req.data;
+            const param = req.params && req.params[0];
+            const templateID = (typeof param === 'object' ? param.ID : param)
+                || req.data.templateID
+                || req.data.ID;
+            console.log("downloadTemplate triggered for ID:", templateID);
+
+            if (!templateID) {
+                return req.error(400, 'Template ID is missing.');
+            }
+
+            // 1. Fetch template basic info
+            const template = await SELECT.one
+                .from('lockbox.templatebuilder.TemplateMaster')
+                .where({ ID: templateID })
+                .columns('templateName', 'templateType', 'sheetMode');
+
+            if (!template) {
+                return req.error(404, 'Template not found.');
+            }
+
+            // 2. Fetch all field mappings for this template
+            const aMappings = await SELECT
+                .from('lockbox.templatebuilder.TemplateFieldMapping')
+                .where({ template_ID: templateID })
+                .columns('field_ID', 'sequenceNo');
+
+            if (!aMappings || aMappings.length === 0) {
+                return req.error(404, 'No fields are mapped to this template.');
+            }
+
+            // 3. Fetch FieldMaster details for all mapped field IDs
+            const aFieldIDs = aMappings.map(m => m.field_ID);
+
+            const aFields = await SELECT
+                .from('lockbox.templatebuilder.FieldMaster')
+                .where({ ID: { in: aFieldIDs } })
+                .columns('ID', 'levelName', 'fieldName', 'sapType');
+
+            // 4. Join mappings with field details, sorted by sequenceNo
+            const aExcelData = aMappings
+                .sort((a, b) => a.sequenceNo - b.sequenceNo)
+                .map(mapping => {
+                    const field = aFields.find(f => f.ID === mapping.field_ID);
+                    return {
+                        "Level Name": field ? field.levelName : '',
+                        "Field Name": field ? field.fieldName : '',
+                        "SAP Type": field ? field.sapType : ''
+                    };
+                });
+
+            // 5. Build Excel workbook
+            const oWorkbook = XLSX.utils.book_new();
+            const isMultiple =
+                template.sheetMode === 'MULTIPLE' ||
+                template.templateType === 'Multiple' ||
+                template.templateType === 'Multiple sheets' ||
+                template.templateType === 'Multiple sheet' ||
+                template.templateType === 'Multi';
+
+            if (!isMultiple) {
+                // Single sheet mode
+                const oWorksheet = XLSX.utils.json_to_sheet(aExcelData);
+                XLSX.utils.book_append_sheet(oWorkbook, oWorksheet, 'Template');
+            } else {
+                // Multiple sheets mode — one sheet per level
+                const oGroupedData = {};
+                aExcelData.forEach(row => {
+                    const level = row["Level Name"] || "Unassigned";
+                    if (!oGroupedData[level]) oGroupedData[level] = [];
+                    oGroupedData[level].push(row);
+                });
+                for (const levelName in oGroupedData) {
+                    const oSheet = XLSX.utils.json_to_sheet(oGroupedData[levelName]);
+                    XLSX.utils.book_append_sheet(oWorkbook, oSheet, levelName);
                 }
-                oGroupedData[level].push(row); 
-            });
-            
-            // Separate sheet for each bucket
-            for (const levelName in oGroupedData) {
-                const oSheet = XLSX.utils.json_to_sheet(oGroupedData[levelName]);
-                XLSX.utils.book_append_sheet(oWorkbook, oSheet, levelName);
             }
+
+            // ... Your steps 1 to 5 ...
+
+            // 6. Output workbook as a Node raw memory Buffer
+            const fileBuffer = XLSX.write(oWorkbook, { type: 'buffer', bookType: 'xlsx' });
+
+            // 7. Inject Custom HTTP Response Headers
+            const sCustomFileName = `${template.templateName}_Configuration.xlsx`;
+            req._.res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(sCustomFileName)}"`);
+            req._.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+            req._.res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+
+            // 8. Return the buffer assigned to your CDS 'content' property name
+            return fileBuffer;
+
+        } catch (err) {
+            console.error("downloadTemplate crashed:", err);
+            return req.error(500, err.message);
         }
+    });
 
-        // 5. Converting to binary and send to browser
-        const buffer = XLSX.write(oWorkbook, { type : 'buffer', bookType : 'xlsx'});
+    // ================================================================
+    // Create Template with Fields in one shot (Custom Action)
+    // ================================================================
+    this.on('createTemplateWithFields', async (req) => {
+        try {
+            const { templateName, templateType, chosenFields } = req.data;
 
-        // Hijack Express.js response to force a file download 
-        req._.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        req._.res.setHeader('Content-Disposition', `attachment; filename="${template.templateName}_Configuration.xlsx"`);
-        
-        return req._.res.send(buffer);
-        
-    }); // <-- Closes this.on
+            // 1. Validate inputs
+            if (!templateName || !templateName.trim()) {
+                return req.error(400, 'Template Name is required.');
+            }
 
-}); // <-- Closes module.exports
+            if (!chosenFields || chosenFields.length === 0) {
+                return req.error(400, 'At least one field must be selected.');
+            }
+
+            const sTemplateId = cds.utils.uuid();
+
+            // 2. Insert into TemplateMaster
+            await INSERT.into('lockbox.templatebuilder.TemplateMaster').entries({
+                ID: sTemplateId,
+                templateName: templateName.trim(),
+                templateType: templateType,
+                sheetMode: templateType === 'Single' ? 'SINGLE' : 'MULTIPLE',
+                status: 'Active'
+            });
+
+            // 3. Insert all field mapping records
+            const aMappings = chosenFields.map((field, index) => ({
+                ID: cds.utils.uuid(),
+                template_ID: sTemplateId,
+                field_ID: field.fieldID,
+                sequenceNo: index + 1,
+                apiField: '',
+                mappingRule: '',
+                ruleId: ''
+            }));
+
+            await INSERT.into('lockbox.templatebuilder.TemplateFieldMapping').entries(aMappings);
+
+            console.log(`Template '${templateName}' created with ${aMappings.length} field(s).`);
+            return "Success";
+
+        } catch (err) {
+            console.error("createTemplateWithFields crashed:", err);
+            return req.error(500, err.message);
+        }
+    });
+
+}); // closes module.exports

@@ -7,6 +7,7 @@ using {
 
 entity TemplateMaster : cuid, managed {
 
+
     templateName : String(100);
 
     templateType : String(50);
@@ -19,7 +20,7 @@ entity TemplateMaster : cuid, managed {
                        on mappings.template = $self;
 }
 
-entity FieldMaster : cuid {
+entity FieldMaster : cuid, managed {
 
     levelName    : String(30);
 
@@ -34,7 +35,7 @@ entity FieldMaster : cuid {
     isRequired   : Boolean;
 }
 
-entity TemplateFieldMapping : cuid {
+entity TemplateFieldMapping : cuid, managed {
 
     template    : Association to TemplateMaster;
 

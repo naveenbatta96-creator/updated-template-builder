@@ -1,0 +1,32 @@
+{
+  "generationParameters": {
+    "generationDate": "Mon Jun 01 2026 23:02:32 GMT+0530 (India Standard Time)",
+    "generatorPlatform": "Visual Studio Code",
+    "serviceType": "Local CAP",
+    "metadataFilename": "",
+    "serviceUrl": "http://localhost:4004/odata/v4/template/",
+    "appName": "templatemap",
+    "appTitle": "templatemapper",
+    "appDescription": "An SAP Fiori application to genrate templates",
+    "appNamespace": "nav.tmp.map",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.148.1",
+    "enableEslint": true,
+    "enableTypeScript": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.25.0",
+    "template": "List Report Page V4",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [
+      {
+        "type": "Main Entity",
+        "value": "TemplateMasterWithCount"
+      },
+      {
+        "type": "Navigation Entity",
+        "value": "mappings"
+      }
+    ],
+    "launchText": "To launch the generated app, start your CAP project:  and navigate to the following location in your browser:\n\nhttp://localhost:4004/nav.tmp.map.templatemap/index.html"
+  }
+}

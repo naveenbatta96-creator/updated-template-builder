@@ -1,0 +1,188 @@
+{
+  "_version": "1.85.0",
+  "sap.app": {
+    "id": "nav.tmp.map.templatemap",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.25.0",
+      "toolsId": "5e2b76e8-b148-4583-bb9d-6162c75f66cd"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/template/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.148.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "nav.tmp.map.templatemap.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "TemplateMasterWithCountList",
+          "target": "TemplateMasterWithCountList"
+        },
+        {
+          "pattern": "TemplateMasterWithCount({key}):?query:",
+          "name": "TemplateMasterWithCountObjectPage",
+          "target": "TemplateMasterWithCountObjectPage"
+        },
+        {
+          "pattern": "TemplateMasterWithCount({key})/mappings({key2}):?query:",
+          "name": "TemplateFieldMappingObjectPage",
+          "target": "TemplateFieldMappingObjectPage"
+        }
+      ],
+      "targets": {
+        "TemplateMasterWithCountList": {
+          "type": "Component",
+          "id": "TemplateMasterWithCountList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/TemplateMasterWithCount",
+              "variantManagement": "None",
+              "initialLoad": "Enabled",
+              "navigation": {
+                "TemplateMasterWithCount": {
+                  "detail": {
+                    "route": "TemplateMasterWithCountObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "selectionMode": "None"
+                  },
+                  "actions": {
+                    "TemplateService.TemplateMasterWithCount_downloadTemplate": {
+                      "press": "nav.tmp.map.templatemap.ext.controller.DownloadTemplate.downloadTemplate",
+                      "enabled": true
+                    }
+                  }
+                }
+              },
+              "content": {
+                "header": {
+                  "actions": {
+                    "CreateTemplate": {
+                      "press": "nav.tmp.map.templatemap.ext.controller.CreateTemplateDialog.createTemplate",
+                      "visible": true,
+                      "enabled": true,
+                      "text": "{i18n>createtemplate}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TemplateMasterWithCountObjectPage": {
+          "type": "Component",
+          "id": "TemplateMasterWithCountObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/TemplateMasterWithCount",
+              "navigation": {
+                "mappings": {
+                  "detail": {
+                    "route": "TemplateFieldMappingObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TemplateFieldMappingObjectPage": {
+          "type": "Component",
+          "id": "TemplateFieldMappingObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/TemplateMasterWithCount/mappings"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.fe": {
+    "app": {
+      "enableLazyLoading": true
+    }
+  }
+}

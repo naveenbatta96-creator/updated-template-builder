@@ -1,0 +1,61 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog title="Create New Template" contentWidth="800px" contentHeight="600px" verticalScrolling="true">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                    <Title text="Step 1 — Choose fields from the list" level="H4"/>
+                    <HBox alignItems="Center">
+                        <Select selectedKey="All" class="sapUiSmallMarginEnd">
+                            <core:Item key="All" text="All Levels" />
+                        </Select>
+                        <Button text="Add new" type="Ghost" icon="sap-icon://add" />
+                    </HBox>
+                </HBox>
+
+                <Table id="fieldsTable" mode="MultiSelect" items="{/FieldMaster}" selectionChange=".onTableSelectionChange">
+                    <columns>
+                        <Column><Text text="Level" /></Column>
+                        <Column><Text text="Field Description" /></Column>
+                        <Column><Text text="Property" /></Column>
+                        <Column><Text text="Max Length" /></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{levelName}" /> 
+                                <Text text="{fieldName}" class="sapUiSelectable" />
+                                <ObjectStatus text="{propertyType}" state="{= ${propertyType} === 'Required' ? 'Error' : 'None' }" />
+                                <Text text="{fieldLength}" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+                
+                <Text id="selectedFieldsCount" text="0 field(s) selected" class="sapUiSmallMarginTop sapUiSmallMarginBottom textMuted" />
+                
+                <core:HTML content="&lt;hr/&gt;" />
+
+                <Title text="Step 2 — Save as" level="H4" class="sapUiSmallMarginTopBottom"/>
+                <form:SimpleForm editable="true" layout="ResponsiveGridLayout">
+                    <form:content>
+                        <Label text="Template Name" required="true" />
+                        <Input id="inputTemplateName" placeholder="e.g., Lockbox Posting Template 1" />
+                        
+                        <Label text="Template Type" required="true" />
+                        <Select id="selectTemplateType">
+                            <core:Item key="Single" text="Single sheet" />
+                            <core:Item key="Multi" text="Multiple Sheet" />
+                        </Select>
+                    </form:content>
+                </form:SimpleForm>
+            </VBox>
+        </content>
+        <buttons>
+            <Button text="Save" type="Emphasized" press=".onSaveTemplate" />
+            <Button text="Cancel" press=".onCloseDialog" />
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>
